@@ -1,6 +1,6 @@
 # 🤖 Google Doc Automator: Gemini-Powered Reports
 
-An automated workflow that uses **Gemini 1.5 Flash** to analyze a set of links and generate a fully formatted Google Doc report. This script is optimized for **Google Workspace Business** environments using Shared Drives to bypass Service Account storage limitations.
+An automated workflow that uses **Gemini 2.5 Flash** to analyze a set of links and generate a fully formatted Google Doc report. This script is optimized for **Google Workspace Business** environments using Shared Drives to bypass Service Account storage limitations.
 
 ## 🚀 Key Features
 
@@ -29,7 +29,7 @@ SHARED_DRIVE_ID=your_shared_drive_id
 SERVICE_ACCOUNT_KEY_PATH=./service-account-key.json
 ```
 
-## 📄 Template Setup
+## 📄 Template Setup
 
 Your Google Doc Template must contain these exact placeholders. The script will replace them while maintaining the font, color, and size you applied to the placeholder.
 
@@ -62,7 +62,7 @@ Your Google Doc Template must contain these exact placeholders. The script will 
 }
 ```
 
-## 🛠️ Installation & Usage
+## 🛠️ Installation & Usage
 
 Install dependencies: `npm install`
 Run the script: `node index.js`
