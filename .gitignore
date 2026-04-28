@@ -1,0 +1,5 @@
+.env
+package-lock.json
+service-account-key.json
+gemini-cache.json
+node_modules

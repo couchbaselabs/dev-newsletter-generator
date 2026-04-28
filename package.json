@@ -1,0 +1,16 @@
+{
+  "name": "newsletter-generator",
+  "version": "1.0.0",
+  "main": "newslettergen.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "dotenv": "^17.4.2",
+    "googleapis": "^171.4.0"
+  }
+}
