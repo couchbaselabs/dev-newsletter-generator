@@ -50,14 +50,14 @@ Your Google Doc Template must contain these exact placeholders. The script will 
 ```javascript
 {
   "announcement": {
-    "url": "[https://example.com/main-news](https://example.com/main-news)",
+    "url": "https://example.com/main-news",
     "customNote": "Focus on the environmental impact of this launch."
   },
   "blockUrls": [
-    "[https://techcrunch.com/article1](https://techcrunch.com/article1)",
-    "[https://theverge.com/article2](https://theverge.com/article2)",
-    "[https://wired.com/article3](https://wired.com/article3)",
-    "[https://reuters.com/article4](https://reuters.com/article4)"
+    "https://techcrunch.com/article1",
+    "https://theverge.com/article2",
+    "https://wired.com/article3",
+    "https://reuters.com/article4"
   ]
 }
 ```
