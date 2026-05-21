@@ -1,12 +1,12 @@
 {
   "announcement": {
-    "url": "https://github.com/EdikSimonian/django-couchbase-orm",
-    "customNote": "A new ORM project from community memvers."
+    "url": "https://docs.couchbase.com/cloud/get-started/capella-iq/work-with-capellaiq.html#model-provider",
+    "customNote": "Announcing GA of AWS Bedrock Support for Capella iQ & iQ Insights. We are excited to announce the General Availability of AWS Bedrock model support for Capella iQ and iQ Insights. The enhanced multi-model experience is now available across all tenants, including both Free Tier and Paid environments."
   },
   "blockUrls": [
-        "https://www.couchbase.com/blog/patientiq-building-a-patient-360-on-couchbase/",
-        "https://www.couchbase.com/blog/speed-context-and-savings-mastering-caching-in-the-capella-ai-model-service/",
-        "https://www.couchbase.com/blog/build-a-celebrity-look-alike-app-with-multimodal-vector-search-and-couchbase/",
-        "https://www.couchbase.com/blog/filtered-ann-search-with-composite-vector-indexes-part-4/"
+        "https://www.couchbase.com/blog/can-text-to-sql-benchmarks-work-on-document-databases-a-couchbase-architecture-case-study/",
+        "https://www.couchbase.com/blog/connecting-apache-nifi-to-couchbase-capella-a-step-by-step-guide/",
+        "https://www.couchbase.com/blog/build-internal-tools-on-couchbase-data-in-minutes-with-tooljet/",
+        "https://www.couchbase.com/blog/build-a-personal-memory-search-with-couchbase-ai-services-and-hyperscale-vector-index/"
   ]
 }

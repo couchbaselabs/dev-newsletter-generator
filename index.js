@@ -15,7 +15,7 @@ const INPUT_FILE = './data.json';
 
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ 
-    model: "gemini-2.5-flash",
+    model: "gemini-3.5-flash",
     generationConfig: { responseMimeType: "application/json" }
 });
 
@@ -25,6 +25,38 @@ function getFileHash(filePath) {
     const hashSum = crypto.createHash('sha1');
     hashSum.update(fileBuffer);
     return hashSum.digest('hex');
+}
+
+function buildLinkReplaceRequests(document, placeholderUrl, newUrl) {
+    const requests = [];
+
+    function walkContent(content) {
+        for (const element of content) {
+            if (element.paragraph) {
+                for (const paraElement of element.paragraph.elements) {
+                    const link = paraElement.textRun?.textStyle?.link?.url;
+                    if (link === placeholderUrl) {
+                        requests.push({
+                            updateTextStyle: {
+                                range: { startIndex: paraElement.startIndex, endIndex: paraElement.endIndex },
+                                textStyle: { link: { url: newUrl } },
+                                fields: 'link',
+                            }
+                        });
+                    }
+                }
+            } else if (element.table) {
+                for (const row of element.table.tableRows) {
+                    for (const cell of row.tableCells) {
+                        walkContent(cell.content);
+                    }
+                }
+            }
+        }
+    }
+
+    walkContent(document.body.content);
+    return requests;
 }
 
 async function createCustomReport() {
@@ -54,18 +86,21 @@ async function createCustomReport() {
             const inputData = JSON.parse(fs.readFileSync(INPUT_FILE, 'utf8'));
             
             const prompt = `
+                You are a professional copy writer working for Couchbase, on the monthly dev newsletter
                 Context: ${inputData.announcement.customNote}
                 Announcement Link: ${inputData.announcement.url}
                 Block Links: ${inputData.blockUrls.join(", ")}
-                Return JSON format:
+                desc/body should be less than 500 characters; titles should be less than 80
+                Subject lines should cover several links, dont linked them with a +, try to keep them under 50 Chars
+                Return valid JSON format:
                 {
-                    "intro": "Summary",
+                    "intro": "Developer friendly Summary",
                     "announcement": { "title": "", "body": "", "linkText": "", "linkUrl": "${inputData.announcement.url}" },
-                    "blocks": [{ "title": "", "desc": "", "linkText": "" }],
-                    "suggestions": "Email Topics Suggestion",
-                    "title": "Dev Newsletter Title",
-                    "subjecta": "Subject Line A (Product / Release Focus)",
-                    "subjectb": "Subject Line B (Architecture / Curiosity Focus)"
+                    "blocks": [{ "title": "", "desc": "", "linkText": "", "url" : "" }],
+                    "suggestions": "propose several Email subject line based on the content",
+                    "title": "Dev Newsletter Title, several propositions",
+                    "subjecta": "Subject Line A (Summary Product / Release Focus)",
+                    "subjectb": "Subject Line B (Summary Architecture / Curiosity Focus)"
                 }
             `;
 
@@ -105,8 +140,6 @@ async function createCustomReport() {
             { replaceAllText: { containsText: { text: '{{ANN_DESC}}', matchCase: true }, replaceText: docData.announcement.body }},
             { replaceAllText: { containsText: { text: '{{SUGGESTIONS}}', matchCase: true }, replaceText: docData.suggestions }},
             
-            // Announcement Links
-            { replaceAllText: { containsText: { text: 'https://announcement.com', matchCase: true }, replaceText: docData.announcement.linkUrl }},
             { replaceAllText: { containsText: { text: 'ANN_LINK_TEXT', matchCase: true }, replaceText: docData.announcement.linkText }}
         ];
 
@@ -115,15 +148,24 @@ async function createCustomReport() {
             requests.push(
                 { replaceAllText: { containsText: { text: `{{BLOCK${i}_TITLE}}`, matchCase: true }, replaceText: block.title }},
                 { replaceAllText: { containsText: { text: `{{BLOCK${i}_DESC}}`, matchCase: true }, replaceText: block.desc }},
-                { replaceAllText: { containsText: { text: `https://block${i}.com`, matchCase: true }, replaceText: inputData.blockUrls[index] }},
                 { replaceAllText: { containsText: { text: `BLOCK${i}_LINK_TEXT`, matchCase: true }, replaceText: block.linkText }}
             );
         });
 
-        await docs.documents.batchUpdate({
-             documentId: newDocId,
-             resource: { requests } 
-            });
+        await docs.documents.batchUpdate({ documentId: newDocId, resource: { requests } });
+
+        // --- 6. REPLACE HYPERLINK URLS (requires reading doc for indices) ---
+        const docContent = await docs.documents.get({ documentId: newDocId });
+        const linkRequests = [
+            ...buildLinkReplaceRequests(docContent.data, 'https://ann_link', docData.announcement.linkUrl),
+            ...docData.blocks.flatMap((block, index) =>
+                buildLinkReplaceRequests(docContent.data, `https://block${index + 1}.com`, block.url)
+            ),
+        ];
+
+        if (linkRequests.length > 0) {
+            await docs.documents.batchUpdate({ documentId: newDocId, resource: { requests: linkRequests } });
+        }
 
         console.log(`\n✨ Success!`);
         console.log(`🔗 URL: https://docs.google.com/document/d/${newDocId}/edit`);
